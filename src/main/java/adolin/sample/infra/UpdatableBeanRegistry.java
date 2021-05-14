@@ -1,22 +1,34 @@
 package adolin.sample.infra;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
- * < ... description>
+ * Реестр обновляемых свойств. Хранит свойства и обновляет их в привязанных бинах.
  *
  * @author Adolin Negash 13.05.2021
  */
 public interface UpdatableBeanRegistry {
 
   /**
-   * @param propertyName
-   * @return
+   * Добавляет в реестр бин с оновляемыми свойствами.
+   *
+   * @param bean бин
+   * @return true - если бин содержит поле, которое будет обновляться (помечено аннотацей {@link adolin.sample.infra.annotations.UpdatableValue}).
    */
-  UpdatableProperty getProperty(String propertyName);
+  boolean addBean(Object bean);
 
   /**
+   * Возвращает список свойств.
    *
+   * @return список свойств.
    */
-  void updateProperties(List<PropertyValue> values);
+  Collection<String> getProperties();
+
+  /**
+   * Обновляет заданные свойства.
+   *
+   * @param listOfValues список обновляемых свойств и их значений.
+   */
+  void updateProperties(List<PropertyValue> listOfValues);
 }

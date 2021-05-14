@@ -2,17 +2,25 @@ package adolin.sample.infra;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
- * < ... description>
+ * Значение свойства.
  *
  * @author Adolin Negash 13.05.2021
  */
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class PropertyValue {
 
-  private final String name;
+  /**
+   * Название свойства.
+   */
+  private String name;
 
-  private final String value;
+  /**
+   * Значение свойства.
+   */
+  private String value;
 }

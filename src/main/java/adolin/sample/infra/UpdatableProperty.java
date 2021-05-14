@@ -3,12 +3,14 @@ package adolin.sample.infra;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 /**
  *
  */
 @Getter
+@RequiredArgsConstructor
 public class UpdatableProperty {
 
   /**
@@ -25,12 +27,5 @@ public class UpdatableProperty {
   /**
    *
    */
-  private final List<BeanInfo> beans = new ArrayList<>();
-
-  /**
-   * @param name
-   */
-  public UpdatableProperty(String name) {
-    this.name = name;
-  }
+  private final List<BeanFieldInfo> beans = new ArrayList<>();
 }
