@@ -1,8 +1,8 @@
 package adolin.sample.config;
 
+import adolin.sample.infra.annotations.UpdatableBean;
 import adolin.sample.service.SampleService;
 import adolin.sample.service.SampleServiceImpl;
-import org.springframework.context.annotation.Bean;
 
 /**
  * Common bean configuration.
@@ -12,9 +12,11 @@ import org.springframework.context.annotation.Bean;
 public class CommonConfig {
 
   /**
-   * @return
+   * Сервис-образец.
+   *
+   * @return {@link SampleServiceImpl}
    */
-  @Bean
+  @UpdatableBean
   public SampleService sampleService() {
     return new SampleServiceImpl();
   }

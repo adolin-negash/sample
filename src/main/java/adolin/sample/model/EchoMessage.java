@@ -18,4 +18,9 @@ public class EchoMessage {
    * Echo message.
    */
   private String message;
+
+  /**
+   *
+   */
+  private String info;
 }

@@ -1,9 +1,14 @@
 package adolin.sample.web.controller;
 
+import adolin.sample.infra.PropertyValue;
+import adolin.sample.infra.UpdatableBeanRegistry;
 import adolin.sample.model.EchoMessage;
 import adolin.sample.service.SampleService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +25,9 @@ public class DefaultController {
   @Autowired
   private SampleService sampleService;
 
+  @Autowired
+  private UpdatableBeanRegistry updatableBeanRegistry;
+
   /**
    * Echo.
    *
@@ -29,5 +37,10 @@ public class DefaultController {
   @GetMapping("/echo")
   public EchoMessage echo(@RequestParam("text") String text) {
     return sampleService.echo(text);
+  }
+
+  @PostMapping("/props")
+  public void setProperties(@RequestBody List<PropertyValue> values) {
+    updatableBeanRegistry.updateProperties(values);
   }
 }
