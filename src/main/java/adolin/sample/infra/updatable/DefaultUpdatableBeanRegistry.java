@@ -1,4 +1,4 @@
-package adolin.sample.infra;
+package adolin.sample.infra.updatable;
 
 import adolin.sample.infra.annotations.UpdatableValue;
 import java.lang.reflect.Field;

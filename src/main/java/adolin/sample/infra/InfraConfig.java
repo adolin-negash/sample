@@ -1,5 +1,8 @@
 package adolin.sample.infra;
 
+import adolin.sample.infra.updatable.DefaultUpdatableBeanRegistry;
+import adolin.sample.infra.updatable.UpdatableBeanRegistry;
+import adolin.sample.infra.updatable.UpdatableFieldsInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

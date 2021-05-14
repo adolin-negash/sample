@@ -1,4 +1,4 @@
-package adolin.sample.infra;
+package adolin.sample.infra.updatable;
 
 import java.lang.reflect.Field;
 import lombok.Getter;

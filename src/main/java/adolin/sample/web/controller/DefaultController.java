@@ -1,7 +1,7 @@
 package adolin.sample.web.controller;
 
-import adolin.sample.infra.PropertyValue;
-import adolin.sample.infra.UpdatableBeanRegistry;
+import adolin.sample.infra.updatable.PropertyValue;
+import adolin.sample.infra.updatable.UpdatableBeanRegistry;
 import adolin.sample.model.EchoMessage;
 import adolin.sample.service.SampleService;
 import java.util.List;
