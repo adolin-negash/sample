@@ -3,6 +3,7 @@ package adolin.sample.infra;
 import adolin.sample.infra.updatable.DefaultUpdatableBeanRegistry;
 import adolin.sample.infra.updatable.UpdatableBeanRegistry;
 import adolin.sample.infra.updatable.UpdatableFieldsInitializer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +20,7 @@ public class InfraConfig {
    *
    * @return {@link UpdatableFieldsInitializer}
    */
+  @ConditionalOnMissingBean
   @Bean
   public UpdatableFieldsInitializer updatableFieldsInitializer() {
     return new UpdatableFieldsInitializer();
@@ -29,6 +31,7 @@ public class InfraConfig {
    *
    * @return {@link DefaultUpdatableBeanRegistry}
    */
+  @ConditionalOnMissingBean
   @Bean
   public UpdatableBeanRegistry updatableBeanRegistry() {
     return new DefaultUpdatableBeanRegistry();

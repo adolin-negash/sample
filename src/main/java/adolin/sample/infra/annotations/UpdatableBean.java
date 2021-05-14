@@ -10,9 +10,9 @@ import org.springframework.core.annotation.AliasFor;
 
 /**
  * Аннотация помечает бины, которые содержат обновляемые свойства.
- * @see UpdatableValue
  *
  * @author Adolin Negash 13.05.2021
+ * @see UpdatableValue
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
@@ -26,5 +26,10 @@ public @interface UpdatableBean {
    * @return список
    */
   @AliasFor(value = "value", annotation = Bean.class)
-  String[] value() default {};
+  String[] name() default {};
+
+  /**
+   * Метод, который будет вызван после обновления всех свойств в бине.
+   */
+  String onUpdateMethod() default "";
 }

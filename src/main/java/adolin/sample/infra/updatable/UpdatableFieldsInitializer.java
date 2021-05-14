@@ -8,9 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 /**
- * 1. fetch beans and fill registry
- * <p>
- * 2. listen refresh and update
+ * Ищет бины, у которых могут обновляться поля при изменении свойств.
  *
  * @author Adolin Negash 13.05.2021
  */
@@ -21,8 +19,9 @@ public class UpdatableFieldsInitializer implements ApplicationContextAware {
 
   private void setup(ApplicationContext applicationContext) {
     Map<String, Object> beans = applicationContext.getBeansWithAnnotation(UpdatableBean.class);
-    for (Object bean : beans.values()) {
-      beanRegistry.addBean(bean);
+    for (Map.Entry<String, Object> es : beans.entrySet()) {
+      UpdatableBean annotation = applicationContext.findAnnotationOnBean(es.getKey(), UpdatableBean.class);
+      beanRegistry.addBean(es.getValue(), es.getKey(), annotation);
     }
   }
 

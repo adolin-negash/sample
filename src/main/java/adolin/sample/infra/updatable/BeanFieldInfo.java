@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- *
+ * Информация о поле бина.
  */
 @Getter
 @RequiredArgsConstructor

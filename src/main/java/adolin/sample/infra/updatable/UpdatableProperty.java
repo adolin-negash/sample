@@ -3,29 +3,15 @@ package adolin.sample.infra.updatable;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 /**
- *
+ * Информация об обновляемом поле.
  */
 @Getter
-@RequiredArgsConstructor
-public class UpdatableProperty {
+class UpdatableProperty {
 
   /**
-   *
-   */
-  private final String name;
-
-  /**
-   *
-   */
-  @Setter
-  private String value;
-
-  /**
-   *
+   * Список полей бинов, которые привязаны к свойству.
    */
   private final List<BeanFieldInfo> beans = new ArrayList<>();
 }

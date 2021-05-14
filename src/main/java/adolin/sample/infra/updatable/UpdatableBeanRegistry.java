@@ -1,5 +1,6 @@
 package adolin.sample.infra.updatable;
 
+import adolin.sample.infra.annotations.UpdatableBean;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,10 +14,11 @@ public interface UpdatableBeanRegistry {
   /**
    * Добавляет в реестр бин с оновляемыми свойствами.
    *
-   * @param bean бин
-   * @return true - если бин содержит поле, которое будет обновляться (помечено аннотацей {@link adolin.sample.infra.annotations.UpdatableValue}).
+   * @param bean       бин.
+   * @param beanName   имя бина.
+   * @param annotation аннотация.
    */
-  boolean addBean(Object bean);
+  void addBean(Object bean, String beanName, UpdatableBean annotation);
 
   /**
    * Возвращает список свойств.

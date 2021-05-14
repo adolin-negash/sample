@@ -1,7 +1,9 @@
 package adolin.sample.infra.updatable;
 
+import adolin.sample.infra.annotations.UpdatableBean;
 import adolin.sample.infra.annotations.UpdatableValue;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,6 +12,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -30,26 +33,32 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
   /**
    * Добавляет в реестр автообновляемый бин.
    *
-   * @param bean бин
-   * @return true - если бин содержит обновляемое свойство и может обновляться.
+   * @param bean       бин.
+   * @param beanName   имя бина.
+   * @param annotation аннотация.
    */
   @Override
-  public boolean addBean(Object bean) {
-    Objects.requireNonNull(bean, "empty bean");
-    final List<Pair<Field, UpdatableValue>> fields = getProperties(bean.getClass());
-    if (fields.isEmpty()) {
-      return false;
-    }
+  public void addBean(Object bean, String beanName, UpdatableBean annotation) {
 
+    Objects.requireNonNull(bean, "empty bean");
+
+    Class<?> beanClass = bean.getClass();
+
+    final List<Pair<Field, UpdatableValue>> fields = getProperties(beanClass);
     for (Pair<Field, UpdatableValue> pair : fields) {
       final String propertyName = pair.getRight().value();
-      final UpdatableProperty updatableProperty = properties
-          .computeIfAbsent(propertyName, UpdatableProperty::new);
+      final Field field = pair.getLeft();
+      final UpdatableProperty property = properties.computeIfAbsent(propertyName, n -> new UpdatableProperty());
 
-      updatableProperty.getBeans().add(new BeanFieldInfo(bean, pair.getLeft()));
+      property.getBeans().add(new BeanFieldInfo(bean, field));
+
+      setBeanField(bean, field, environment.getProperty(propertyName));
     }
 
-    return true;
+    final List<Method> setters = getSetters(beanClass);
+    for (Method method : setters) {
+
+    }
   }
 
   /**
@@ -83,20 +92,21 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     }
 
     for (BeanFieldInfo beanInfo : property.getBeans()) {
-      final Object bean = beanInfo.getBean();
-      final Field field = beanInfo.getField();
-      try {
+      setBeanField(beanInfo.getBean(), beanInfo.getField(), value);
+    }
+  }
 
-        if (log.isDebugEnabled()) {
-          log.debug("Change value of type {}, field {} by property {}",
-              bean.getClass(), field.getName(), propertyName);
-        }
-
-        FieldUtils.writeField(field, bean, value, true);
-      } catch (IllegalAccessException e) {
-        log.error("Cannot update property {}, no access to field {}.\nError: {}",
-            propertyName, field.getName(), e.getMessage());
+  private void setBeanField(Object bean, Field field, String value) {
+    try {
+      if (log.isDebugEnabled()) {
+        log.debug("Change value of type {}, field {}",
+            bean.getClass(), field.getName());
       }
+
+      FieldUtils.writeField(field, bean, value, true);
+    } catch (IllegalAccessException e) {
+      log.error("Cannot update property no access to field {}.{}.\nError: {}",
+          bean.getClass(), field.getName(), e.getMessage());
     }
   }
 
@@ -108,6 +118,13 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         .collect(Collectors.toList());
   }
 
+  private List<Method> getSetters(Class<?> beanClass) {
+    return MethodUtils.getMethodsListWithAnnotation(beanClass, UpdatableValue.class, true, true)
+        .stream()
+        .filter(this::isValidSetter)
+        .collect(Collectors.toList());
+  }
+
   private boolean isFieldValid(Field field) {
     final Class<?> type = field.getType();
     final int modifiers = field.getModifiers();
@@ -115,5 +132,13 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     return type.isAssignableFrom(String.class)
         && !Modifier.isFinal(modifiers)
         && !Modifier.isStatic(modifiers);
+  }
+
+  private boolean isValidSetter(Method method) {
+    Class<?>[] params = method.getParameterTypes();
+    if (params.length != 1) {
+      return false;
+    }
+    return params[0].isAssignableFrom(String.class);
   }
 }
