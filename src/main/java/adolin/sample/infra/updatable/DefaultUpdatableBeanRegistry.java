@@ -2,16 +2,13 @@ package adolin.sample.infra.updatable;
 
 import adolin.sample.infra.annotations.UpdatableBean;
 import adolin.sample.infra.annotations.UpdatableValue;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,120 +22,117 @@ import org.springframework.core.env.Environment;
 @Slf4j
 public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
 
-  private final HashMap<String, UpdatableProperty> properties = new HashMap<>();
+    private static final Class<?>[] PARAMETER_TYPES = {String.class};
 
-  @Autowired
-  private Environment environment;
+    @Getter
+    static class BeanInfo {
 
-  /**
-   * Добавляет в реестр автообновляемый бин.
-   *
-   * @param bean       бин.
-   * @param beanName   имя бина.
-   * @param annotation аннотация.
-   */
-  @Override
-  public void addBean(Object bean, String beanName, UpdatableBean annotation) {
+        private final Object bean;
 
-    Objects.requireNonNull(bean, "empty bean");
+        private final Method afterUpdateMethod;
 
-    Class<?> beanClass = bean.getClass();
-
-    final List<Pair<Field, UpdatableValue>> fields = getProperties(beanClass);
-    for (Pair<Field, UpdatableValue> pair : fields) {
-      final String propertyName = pair.getRight().value();
-      final Field field = pair.getLeft();
-      final UpdatableProperty property = properties.computeIfAbsent(propertyName, n -> new UpdatableProperty());
-
-      property.getBeans().add(new BeanFieldInfo(bean, field));
-
-      setBeanField(bean, field, environment.getProperty(propertyName));
+        BeanInfo(Object bean, Method afterUpdateMethod) {
+            this.bean = bean;
+            this.afterUpdateMethod = afterUpdateMethod;
+        }
     }
 
-    final List<Method> setters = getSetters(beanClass);
-    for (Method method : setters) {
+    private final HashMap<String, List<BeanMemberInfo>> properties = new HashMap<>();
 
+    private final HashMap<String, BeanInfo> beans = new HashMap<>();
+
+    @Autowired
+    private Environment environment;
+
+    /**
+     * Регистрирует в реестре в реестр бин с оновляемыми свойствами.
+     *
+     * @param beanName   имя бина.
+     * @param bean       бин.
+     * @param proxyBean  запроксированный бин.
+     * @param annotation аннотация.
+     */
+    @Override
+    public void registerBean(String beanName, Object bean, Object proxyBean, UpdatableBean annotation) {
+        Objects.requireNonNull(beanName, "empty beanName");
+        Objects.requireNonNull(bean, "empty bean");
+        Objects.requireNonNull(proxyBean, "empty proxyBean");
+        Objects.requireNonNull(annotation, "empty bean annotation");
+
+//        for (BeanMemberInfo info : updatableMembers) {
+//            info.setBeanName(beanName);
+//            final String propertyName = info.getProperty();
+//            final List<BeanMemberInfo> membersList = properties.computeIfAbsent(propertyName, n -> new ArrayList<>());
+//            membersList.add(info);
+//        }
+
+//            Class<?> originalClass = originalBean.getClass();
+//            var membersInfo = new BeanMembersInfo()
+//                .setBean(proxyBean)
+//                .setFields(extractUpdatableFields(originalClass))
+//                .setSetters(extractUpdatableSetters(originalClass))
+//                .setAnnotation(null);
+//
+//            Class<?> proxyClass = proxyBean.getClass();
+//
+//            Stream<BeanMemberInfo> fieldMembers = membersInfo.getFields().stream()
+//                .map(pair -> new BeanFieldInfo(originalBean, pair.getRight().value(), pair.getLeft()));
+//
+//            Stream<BeanMemberInfo> methodMembers = membersInfo.getSetters().stream()
+//                .map(pair -> getBeanMemberInfo(proxyBean, originalBean, proxyClass, pair));
+//
+//            List<BeanMemberInfo> members = Stream.concat(fieldMembers, methodMembers)
+//                .collect(Collectors.toList());
     }
-  }
 
-  /**
-   * Возвращает список свойств.
-   *
-   * @return список свойств.
-   */
-  @Override
-  public Collection<String> getProperties() {
-    return properties.keySet();
-  }
-
-  /**
-   * Обновляет заданные свойства.
-   *
-   * @param listOfValues список обновляемых свойств и их значений.
-   */
-  @Override
-  public void updateProperties(List<PropertyValue> listOfValues) {
-    Objects.requireNonNull(listOfValues, "empty list");
-    for (PropertyValue value : listOfValues) {
-      updateProperty(value.getName(), value.getValue());
-    }
-  }
-
-  private void updateProperty(String propertyName, String value) {
-    final UpdatableProperty property = properties.get(propertyName);
-    if (property == null) {
-      log.warn("Cannot update property {}, no beans use this property.", propertyName);
-      return;
+    /**
+     * Возвращает список свойств.
+     *
+     * @return список свойств.
+     */
+    @Override
+    public Collection<String> getProperties() {
+        return properties.keySet();
     }
 
-    for (BeanFieldInfo beanInfo : property.getBeans()) {
-      setBeanField(beanInfo.getBean(), beanInfo.getField(), value);
+    /**
+     * Обновляет заданные свойства.
+     *
+     * @param listOfValues список обновляемых свойств и их значений.
+     */
+    @Override
+    public void updateProperties(List<PropertyValue> listOfValues) {
+        Objects.requireNonNull(listOfValues, "empty list");
+        for (PropertyValue value : listOfValues) {
+            updateProperty(value.getName(), value.getValue());
+        }
     }
-  }
 
-  private void setBeanField(Object bean, Field field, String value) {
-    try {
-      if (log.isDebugEnabled()) {
-        log.debug("Change value of type {}, field {}",
-            bean.getClass(), field.getName());
-      }
+    private BeanMemberInfo getBeanMemberInfo(Object bean,
+        Object originalBean,
+        Class<?> proxyClass,
+        Pair<Method, UpdatableValue> pair) {
 
-      FieldUtils.writeField(field, bean, value, true);
-    } catch (IllegalAccessException e) {
-      log.error("Cannot update property no access to field {}.{}.\nError: {}",
-          bean.getClass(), field.getName(), e.getMessage());
+        String property = pair.getRight().value();
+        Method setter = pair.getLeft();
+
+        Method proxySetter = MethodUtils.getAccessibleMethod(proxyClass, setter.getName(), PARAMETER_TYPES);
+        if (proxySetter != null) {
+            return new BeanMethodInfo(bean, property, proxySetter);
+        } else {
+            return new BeanMethodInfo(originalBean, property, setter);
+        }
     }
-  }
 
-  private List<Pair<Field, UpdatableValue>> getProperties(Class<?> beanClass) {
-    return FieldUtils.getAllFieldsList(beanClass).stream()
-        .filter(this::isFieldValid)
-        .map(field -> Pair.of(field, field.getAnnotation(UpdatableValue.class)))
-        .filter(pair -> pair.getRight() != null)
-        .collect(Collectors.toList());
-  }
+    private void updateProperty(String propertyName, String value) {
+        final List<BeanMemberInfo> infoList = properties.get(propertyName);
+        if (infoList == null) {
+            log.warn("Cannot update property {}, no beans use this property.", propertyName);
+            return;
+        }
 
-  private List<Method> getSetters(Class<?> beanClass) {
-    return MethodUtils.getMethodsListWithAnnotation(beanClass, UpdatableValue.class, true, true)
-        .stream()
-        .filter(this::isValidSetter)
-        .collect(Collectors.toList());
-  }
-
-  private boolean isFieldValid(Field field) {
-    final Class<?> type = field.getType();
-    final int modifiers = field.getModifiers();
-
-    return type.isAssignableFrom(String.class)
-        && !Modifier.isFinal(modifiers)
-        && !Modifier.isStatic(modifiers);
-  }
-
-  private boolean isValidSetter(Method method) {
-    Class<?>[] params = method.getParameterTypes();
-    if (params.length != 1) {
-      return false;
+        for (BeanMemberInfo beanInfo : infoList) {
+            beanInfo.setValue(value);
+        }
     }
-    return params[0].isAssignableFrom(String.class);
-  }
 }

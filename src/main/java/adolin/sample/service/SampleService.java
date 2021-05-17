@@ -9,10 +9,9 @@ import adolin.sample.model.EchoMessage;
  */
 public interface SampleService {
 
-  /**
-   *
-   * @param data
-   * @return
-   */
-  EchoMessage echo(String data);
+    /**
+     * @param data
+     * @return
+     */
+    EchoMessage echo(String data);
 }

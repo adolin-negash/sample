@@ -20,16 +20,16 @@ import org.springframework.core.annotation.AliasFor;
 @Bean
 public @interface UpdatableBean {
 
-  /**
-   * Список названий бина.
-   *
-   * @return список
-   */
-  @AliasFor(value = "value", annotation = Bean.class)
-  String[] name() default {};
+    /**
+     * Список названий бина.
+     *
+     * @return список
+     */
+    @AliasFor(value = "value", annotation = Bean.class)
+    String[] name() default {};
 
-  /**
-   * Метод, который будет вызван после обновления всех свойств в бине.
-   */
-  String onUpdateMethod() default "";
+    /**
+     * Метод, который будет вызван после обновления всех свойств в бине.
+     */
+    String onUpdateMethod() default "";
 }

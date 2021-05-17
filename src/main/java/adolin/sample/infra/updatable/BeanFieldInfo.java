@@ -2,22 +2,36 @@ package adolin.sample.infra.updatable;
 
 import java.lang.reflect.Field;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
  * Информация о поле бина.
  */
+@Slf4j
 @Getter
-@RequiredArgsConstructor
-class BeanFieldInfo {
+class BeanFieldInfo extends BeanMemberInfo {
 
-  /**
-   * Бин.
-   */
-  private final Object bean;
+    /**
+     * Поле в бине.
+     */
+    private final Field field;
 
-  /**
-   * Поле в бине.
-   */
-  private final Field field;
+    BeanFieldInfo(Object bean, String property, Field field) {
+        super(bean, property);
+        this.field = field;
+    }
+
+    @Override
+    protected void setValue(String value) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Change value of type {}, field {}", bean.getClass(), field.getName());
+            }
+
+            FieldUtils.writeField(field, bean, value, true);
+        } catch (IllegalAccessException e) {
+            log.error("Cannot update property no access to field {}.{}.", bean.getClass(), field.getName(), e);
+        }
+    }
 }

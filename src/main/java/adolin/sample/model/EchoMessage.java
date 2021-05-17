@@ -14,13 +14,13 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class EchoMessage {
 
-  /**
-   * Echo message.
-   */
-  private String message;
+    /**
+     * Echo message.
+     */
+    private String message;
 
-  /**
-   *
-   */
-  private String info;
+    /**
+     *
+     */
+    private String info;
 }

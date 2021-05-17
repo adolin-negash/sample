@@ -14,13 +14,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PropertyValue {
 
-  /**
-   * Название свойства.
-   */
-  private String name;
+    /**
+     * Название свойства.
+     */
+    private String name;
 
-  /**
-   * Значение свойства.
-   */
-  private String value;
+    /**
+     * Значение свойства.
+     */
+    private String value;
 }

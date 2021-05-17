@@ -11,13 +11,13 @@ import adolin.sample.service.SampleServiceImpl;
  */
 public class CommonConfig {
 
-  /**
-   * Сервис-образец.
-   *
-   * @return {@link SampleServiceImpl}
-   */
-  @UpdatableBean
-  public SampleService sampleService() {
-    return new SampleServiceImpl();
-  }
+    /**
+     * Сервис-образец.
+     *
+     * @return {@link SampleServiceImpl}
+     */
+    @UpdatableBean
+    public SampleService sampleService() {
+        return new SampleServiceImpl();
+    }
 }

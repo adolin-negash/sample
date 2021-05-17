@@ -11,26 +11,27 @@ import java.util.List;
  */
 public interface UpdatableBeanRegistry {
 
-  /**
-   * Добавляет в реестр бин с оновляемыми свойствами.
-   *
-   * @param bean       бин.
-   * @param beanName   имя бина.
-   * @param annotation аннотация.
-   */
-  void addBean(Object bean, String beanName, UpdatableBean annotation);
+    /**
+     * Регистрирует в реестре в реестр бин с оновляемыми свойствами.
+     *
+     * @param beanName   имя бина.
+     * @param bean       бин.
+     * @param proxyBean  запроксированный бин.
+     * @param annotation аннотация.
+     */
+    void registerBean(String beanName, Object bean, Object proxyBean, UpdatableBean annotation);
 
-  /**
-   * Возвращает список свойств.
-   *
-   * @return список свойств.
-   */
-  Collection<String> getProperties();
+    /**
+     * Возвращает список свойств.
+     *
+     * @return список свойств.
+     */
+    Collection<String> getProperties();
 
-  /**
-   * Обновляет заданные свойства.
-   *
-   * @param listOfValues список обновляемых свойств и их значений.
-   */
-  void updateProperties(List<PropertyValue> listOfValues);
+    /**
+     * Обновляет заданные свойства.
+     *
+     * @param listOfValues список обновляемых свойств и их значений.
+     */
+    void updateProperties(List<PropertyValue> listOfValues);
 }

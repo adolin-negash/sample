@@ -10,19 +10,19 @@ import adolin.sample.model.EchoMessage;
  */
 public class SampleServiceImpl implements SampleService {
 
-  @UpdatableValue("adolin.sample.service.some-info")
-  private String info;
+    @UpdatableValue("adolin.sample.service.some-info")
+    private String info;
 
-  /**
-   * Сервис-образец.
-   *
-   * @param data параметр для примера
-   * @return {@link EchoMessage} образец dto-объекта.
-   */
-  @Override
-  public EchoMessage echo(String data) {
-    return new EchoMessage()
-        .setMessage(data)
-        .setInfo(info);
-  }
+    /**
+     * Сервис-образец.
+     *
+     * @param data параметр для примера
+     * @return {@link EchoMessage} образец dto-объекта.
+     */
+    @Override
+    public EchoMessage echo(String data) {
+        return new EchoMessage()
+            .setMessage(data)
+            .setInfo(info);
+    }
 }

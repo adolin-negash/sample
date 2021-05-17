@@ -22,25 +22,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class DefaultController {
 
-  @Autowired
-  private SampleService sampleService;
+    @Autowired
+    private SampleService sampleService;
 
-  @Autowired
-  private UpdatableBeanRegistry updatableBeanRegistry;
+    @Autowired
+    private UpdatableBeanRegistry updatableBeanRegistry;
 
-  /**
-   * Echo.
-   *
-   * @param text text.
-   * @return result echo text.
-   */
-  @GetMapping("/echo")
-  public EchoMessage echo(@RequestParam("text") String text) {
-    return sampleService.echo(text);
-  }
+    /**
+     * Echo.
+     *
+     * @param text text.
+     * @return result echo text.
+     */
+    @GetMapping("/echo")
+    public EchoMessage echo(@RequestParam("text") String text) {
+        return sampleService.echo(text);
+    }
 
-  @PostMapping("/props")
-  public void setProperties(@RequestBody List<PropertyValue> values) {
-    updatableBeanRegistry.updateProperties(values);
-  }
+    @PostMapping("/props")
+    public void setProperties(@RequestBody List<PropertyValue> values) {
+        updatableBeanRegistry.updateProperties(values);
+    }
 }
