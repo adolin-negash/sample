@@ -17,8 +17,8 @@ class BeanFieldInfo extends BeanMemberInfo {
      */
     private final Field field;
 
-    BeanFieldInfo(Object bean, String property, Field field) {
-        super(bean, property);
+    BeanFieldInfo(Object bean, String beanName, Field field) {
+        super(bean, beanName);
         this.field = field;
     }
 

@@ -16,8 +16,13 @@ public class BeanMethodInfo extends BeanMemberInfo {
 
     private final Method setter;
 
-    BeanMethodInfo(Object bean, String property, Method setter) {
-        super(bean, property);
+    /**
+     * @param bean
+     * @param beanName
+     * @param setter
+     */
+    BeanMethodInfo(Object bean, String beanName, Method setter) {
+        super(bean, beanName);
         this.setter = setter;
     }
 

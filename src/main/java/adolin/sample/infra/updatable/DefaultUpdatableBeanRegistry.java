@@ -59,13 +59,15 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         Objects.requireNonNull(proxyBean, "empty proxyBean");
         Objects.requireNonNull(annotation, "empty bean annotation");
 
+        // extract bean info
+;
 //        for (BeanMemberInfo info : updatableMembers) {
 //            info.setBeanName(beanName);
 //            final String propertyName = info.getProperty();
 //            final List<BeanMemberInfo> membersList = properties.computeIfAbsent(propertyName, n -> new ArrayList<>());
 //            membersList.add(info);
 //        }
-
+;
 //            Class<?> originalClass = originalBean.getClass();
 //            var membersInfo = new BeanMembersInfo()
 //                .setBean(proxyBean)

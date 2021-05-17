@@ -1,10 +1,9 @@
 package adolin.sample.infra.updatable;
 
 import lombok.Getter;
-import lombok.Setter;
 
 /**
- * < ... description>
+ * Базовый класс информации о бине.
  *
  * @author Adolin Negash 17.05.2021
  */
@@ -17,27 +16,23 @@ public abstract class BeanMemberInfo {
     protected final Object bean;
 
     /**
-     *
+     * Имя бина.
      */
-    @Setter
-    protected String beanName;
+    protected final String beanName;
 
     /**
-     *
+     * @param bean     бин.
+     * @param beanName имя бина.
      */
-    protected final String property;
-
-    /**
-     * @param bean
-     * @param property
-     */
-    protected BeanMemberInfo(Object bean, String property) {
+    protected BeanMemberInfo(Object bean, String beanName) {
         this.bean = bean;
-        this.property = property;
+        this.beanName = beanName;
     }
 
     /**
-     * @param value
+     * Изменяет значение свойства.
+     *
+     * @param value значение.
      */
     protected abstract void setValue(String value);
 }
