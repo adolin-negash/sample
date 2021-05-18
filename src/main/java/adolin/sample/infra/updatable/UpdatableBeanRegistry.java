@@ -12,7 +12,7 @@ import java.util.List;
 public interface UpdatableBeanRegistry {
 
     /**
-     * Регистрирует в реестре в реестр бин с оновляемыми свойствами.
+     * Регистрирует в реестре бин с оновляемыми свойствами.
      *
      * @param beanName   имя бина.
      * @param bean       бин.

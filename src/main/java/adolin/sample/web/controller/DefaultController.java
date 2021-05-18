@@ -40,7 +40,7 @@ public class DefaultController {
     }
 
     @PostMapping("/props")
-    public void setProperties(@RequestBody List<PropertyValue> values) {
+    public void setProperties(@RequestBody List<PropertyValue> values) throws Exception {
         updatableBeanRegistry.updateProperties(values);
     }
 }

@@ -5,10 +5,8 @@ import adolin.sample.infra.annotations.UpdatableValue;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import lombok.Getter;
@@ -21,6 +19,7 @@ import org.springframework.core.env.Environment;
 
 import static adolin.sample.infra.updatable.UpdatableBeanMemberInfoExtractorUtil.extractUpdatableFields;
 import static adolin.sample.infra.updatable.UpdatableBeanMemberInfoExtractorUtil.extractUpdatableSetters;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Реестр обновляемых свойств. Хранит свойства и обновляет их в привязанных бинах.
@@ -47,13 +46,13 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
 
     private final ConcurrentHashMap<String, List<BeanMemberInfo>> properties = new ConcurrentHashMap<>();
 
-    private final HashMap<String, BeanInfo> beans = new HashMap<>();
+    private final ConcurrentHashMap<String, BeanInfo> beans = new ConcurrentHashMap<>();
 
     @Autowired
     private Environment environment;
 
     /**
-     * Регистрирует в реестре в реестр бин с оновляемыми свойствами.
+     * Регистрирует в реестре бин с оновляемыми свойствами.
      *
      * @param beanName   имя бина.
      * @param bean       бин.
@@ -61,21 +60,21 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
      * @param annotation аннотация.
      */
     @Override
-    public void registerBean(String beanName, Object bean, Object proxyBean, UpdatableBean annotation) {
-        Objects.requireNonNull(beanName, "empty beanName");
-        Objects.requireNonNull(bean, "empty bean");
-        Objects.requireNonNull(proxyBean, "empty proxyBean");
-        Objects.requireNonNull(annotation, "empty bean annotation");
+    public synchronized void registerBean(String beanName, Object bean, Object proxyBean, UpdatableBean annotation) {
+        requireNonNull(beanName, "empty beanName");
+        requireNonNull(bean, "empty bean");
+        requireNonNull(proxyBean, "empty proxyBean");
+        requireNonNull(annotation, "empty bean annotation");
 
         final Class<?> beanClass = bean.getClass();
         final Class<?> proxyClass = proxyBean.getClass();
 
         Stream<Pair<UpdatableValue, BeanMemberInfo>> fieldMembers = extractUpdatableFields(beanClass)
-            .map(pair -> Pair.of(pair.getRight(), new BeanFieldInfo(beanClass, beanName, pair.getLeft())));
+            .map(pair -> Pair.of(pair.getRight(), new BeanFieldInfo(bean, beanName, pair.getLeft())));
 
         Stream<Pair<UpdatableValue, BeanMemberInfo>> methodMembers = extractUpdatableSetters(beanClass)
-            .map(pair -> Pair
-                .of(pair.getRight(), getBeanMemberInfo(beanName, proxyBean, bean, proxyClass, pair.getLeft())));
+            .map(pair -> Pair.of(pair.getRight(),
+                getBeanMemberInfo(beanName, proxyBean, bean, proxyClass, pair.getLeft())));
 
         Stream.concat(fieldMembers, methodMembers)
             .forEach(pair -> {
@@ -84,9 +83,11 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
                     throw new IllegalArgumentException("empty property in UpdatableValue annotation");
                 }
 
-                final List<BeanMemberInfo> membersList = properties
-                    .computeIfAbsent(propertyName, n -> new ArrayList<>());
-                membersList.add(pair.getRight());
+                final List<BeanMemberInfo> membersList = properties.computeIfAbsent(propertyName,
+                    n -> new ArrayList<>());
+                final BeanMemberInfo memberInfo = pair.getRight();
+                membersList.add(memberInfo);
+                memberInfo.setValue(environment.getProperty(propertyName));
             });
         beans.put(beanName, new BeanInfo(bean, null));
     }
@@ -97,7 +98,7 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
      * @return список свойств.
      */
     @Override
-    public Collection<String> getProperties() {
+    public synchronized Collection<String> getProperties() {
         return properties.keySet();
     }
 
@@ -107,8 +108,8 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
      * @param listOfValues список обновляемых свойств и их значений.
      */
     @Override
-    public void updateProperties(List<PropertyValue> listOfValues) throws Exception {
-        Objects.requireNonNull(listOfValues, "empty list");
+    public synchronized void updateProperties(List<PropertyValue> listOfValues) throws Exception {
+        requireNonNull(listOfValues, "empty list");
         HashSet<String> beanNames = new HashSet<>();
         for (PropertyValue value : listOfValues) {
             List<String> changedNames = updateProperty(value.getName(), value.getValue());

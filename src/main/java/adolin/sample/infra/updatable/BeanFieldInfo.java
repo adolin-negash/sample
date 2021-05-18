@@ -17,11 +17,21 @@ class BeanFieldInfo extends BeanMemberInfo {
      */
     private final Field field;
 
+    /**
+     *
+     * @param bean
+     * @param beanName
+     * @param field
+     */
     BeanFieldInfo(Object bean, String beanName, Field field) {
         super(bean, beanName);
         this.field = field;
     }
 
+    /**
+     *
+     * @param value значение.
+     */
     @Override
     protected void setValue(String value) {
         try {

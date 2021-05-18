@@ -13,7 +13,7 @@ public abstract class BeanMemberInfo {
     /**
      * Бин.
      */
-    private final Object bean;
+    protected final Object bean;
 
     /**
      * Имя бина.
