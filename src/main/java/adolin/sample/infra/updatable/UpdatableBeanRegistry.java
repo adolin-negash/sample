@@ -33,5 +33,5 @@ public interface UpdatableBeanRegistry {
      *
      * @param listOfValues список обновляемых свойств и их значений.
      */
-    void updateProperties(List<PropertyValue> listOfValues);
+    void updateProperties(List<PropertyValue> listOfValues) throws Exception;
 }

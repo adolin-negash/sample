@@ -13,12 +13,12 @@ public abstract class BeanMemberInfo {
     /**
      * Бин.
      */
-    protected final Object bean;
+    private final Object bean;
 
     /**
      * Имя бина.
      */
-    protected final String beanName;
+    private final String beanName;
 
     /**
      * @param bean     бин.

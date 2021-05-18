@@ -3,11 +3,13 @@ package adolin.sample.infra.updatable;
 import adolin.sample.infra.annotations.UpdatableBean;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.Ordered;
@@ -32,6 +34,12 @@ public class UpdatableAnnotationBeanPostProcessor implements BeanPostProcessor, 
 
         UpdatableBean annotation = beanFactory.findAnnotationOnBean(beanName, UpdatableBean.class);
         if (annotation != null) {
+            final BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
+            final String scope = beanDefinition.getScope();
+            if (StringUtils.isNoneBlank(scope) && !BeanDefinition.SCOPE_SINGLETON.equals(scope)) {
+                throw new IllegalStateException(
+                    String.format("Cannot use scope %s with annotation UpdatableBean in bean [%s]", scope, beanName));
+            }
             beansMap.put(beanName, Pair.of(bean, annotation));
         }
         return bean;
