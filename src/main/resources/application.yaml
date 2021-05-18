@@ -1,9 +1,5 @@
 ---
-spring:
-  profiles:
-    active: dev
-
 adolin:
   sample:
     service:
-      some-info: "XXXXX"
+      some-info: "init value"
