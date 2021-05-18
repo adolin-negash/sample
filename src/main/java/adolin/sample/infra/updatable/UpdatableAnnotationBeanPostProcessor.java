@@ -3,7 +3,6 @@ package adolin.sample.infra.updatable;
 import adolin.sample.infra.annotations.UpdatableBean;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -13,6 +12,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.Ordered;
+
+import static org.apache.commons.lang3.StringUtils.isNoneBlank;
+import static org.springframework.beans.factory.config.BeanDefinition.SCOPE_SINGLETON;
 
 /**
  * Обработчик бинов, который позволяет регистрировать бины с обновляемыми свойствами.
@@ -44,9 +46,9 @@ public class UpdatableAnnotationBeanPostProcessor implements BeanPostProcessor, 
         if (annotation != null) {
             final BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
             final String scope = beanDefinition.getScope();
-            if (StringUtils.isNoneBlank(scope) && !BeanDefinition.SCOPE_SINGLETON.equals(scope)) {
+            if (isNoneBlank(scope) && !SCOPE_SINGLETON.equals(scope)) {
                 throw new IllegalStateException(
-                    String.format("Cannot use scope %s with annotation UpdatableBean in bean [%s]", scope, beanName));
+                    String.format("Cannot use scope [%s] with annotation UpdatableBean in bean [%s]", scope, beanName));
             }
             beansMap.put(beanName, Pair.of(bean, annotation));
         }
@@ -82,6 +84,7 @@ public class UpdatableAnnotationBeanPostProcessor implements BeanPostProcessor, 
 
     /**
      * Сеттер фабрики бинов.
+     *
      * @param beanFactory фабрика бинов.
      */
     @Override

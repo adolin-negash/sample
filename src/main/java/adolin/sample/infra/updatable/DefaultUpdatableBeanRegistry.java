@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -22,6 +21,7 @@ import org.springframework.core.env.Environment;
 import static adolin.sample.infra.updatable.UpdatableBeanMemberInfoExtractorUtil.extractUpdatableFields;
 import static adolin.sample.infra.updatable.UpdatableBeanMemberInfoExtractorUtil.extractUpdatableSetters;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.reflect.MethodUtils.getAccessibleMethod;
 
 /**
  * Реестр обновляемых свойств. Хранит свойства и обновляет их в привязанных бинах.
@@ -143,7 +143,7 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         Class<?> proxyClass,
         Method setter) {
 
-        final Method proxySetter = MethodUtils.getAccessibleMethod(proxyClass, setter.getName(), SETTER_SIGNATURE);
+        final Method proxySetter = getAccessibleMethod(proxyClass, setter.getName(), SETTER_SIGNATURE);
         if (proxySetter != null) {
             return new BeanMethodInfo(proxyBean, beanName, proxySetter);
         } else {
