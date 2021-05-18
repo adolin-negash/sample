@@ -8,8 +8,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -32,7 +34,7 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     private static final Class<?>[] SETTER_SIGNATURE = {String.class};
 
     @Getter
-    static class BeanInfo {
+    private static class BeanInfo {
 
         private final Object bean;
 
@@ -44,7 +46,16 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         }
     }
 
-    private final ConcurrentHashMap<String, List<BeanMemberInfo>> properties = new ConcurrentHashMap<>();
+    @Getter
+    private static class PropertyInfo {
+
+        @Setter
+        private String value;
+
+        private final List<BeanMemberInfo> members = new ArrayList<>();
+    }
+
+    private final ConcurrentHashMap<String, PropertyInfo> properties = new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<String, BeanInfo> beans = new ConcurrentHashMap<>();
 
@@ -52,7 +63,7 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     private Environment environment;
 
     /**
-     * Регистрирует в реестре бин с оновляемыми свойствами.
+     * Регистрирует в реестре бин с обновляемыми свойствами.
      *
      * @param beanName   имя бина.
      * @param bean       бин.
@@ -83,11 +94,10 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
                     throw new IllegalArgumentException("empty property in UpdatableValue annotation");
                 }
 
-                final List<BeanMemberInfo> membersList = properties.computeIfAbsent(propertyName,
-                    n -> new ArrayList<>());
+                final PropertyInfo propertyInfo = properties.computeIfAbsent(propertyName, n -> new PropertyInfo());
                 final BeanMemberInfo memberInfo = pair.getRight();
-                membersList.add(memberInfo);
-                memberInfo.setValue(environment.getProperty(propertyName));
+                propertyInfo.getMembers().add(memberInfo);
+                updateProperty(propertyName, environment.getProperty(propertyName));
             });
         beans.put(beanName, new BeanInfo(bean, null));
     }
@@ -98,8 +108,10 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
      * @return список свойств.
      */
     @Override
-    public synchronized Collection<String> getProperties() {
-        return properties.keySet();
+    public synchronized Collection<PropertyValue> getProperties() {
+        return properties.entrySet().stream()
+            .map(es -> new PropertyValue(es.getKey(), es.getValue().getValue()))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -108,7 +120,7 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
      * @param listOfValues список обновляемых свойств и их значений.
      */
     @Override
-    public synchronized void updateProperties(List<PropertyValue> listOfValues) throws Exception {
+    public synchronized void updateProperties(Collection<PropertyValue> listOfValues) throws Exception {
         requireNonNull(listOfValues, "empty list");
         HashSet<String> beanNames = new HashSet<>();
         for (PropertyValue value : listOfValues) {
@@ -140,17 +152,18 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     }
 
     private List<String> updateProperty(String propertyName, String value) {
-        final List<BeanMemberInfo> infoList = properties.get(propertyName);
+        final PropertyInfo info = properties.get(propertyName);
         final List<String> beanNames = new ArrayList<>();
-        if (infoList == null) {
+        if (info == null) {
             log.warn("Cannot update property {}, no beans use this property.", propertyName);
             return beanNames;
         }
 
-        for (BeanMemberInfo beanInfo : infoList) {
+        for (BeanMemberInfo beanInfo : info.getMembers()) {
             beanInfo.setValue(value);
             beanNames.add(beanInfo.getBeanName());
         }
+        info.setValue(value);
         return beanNames;
     }
 }

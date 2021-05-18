@@ -12,7 +12,7 @@ import java.util.List;
 public interface UpdatableBeanRegistry {
 
     /**
-     * Регистрирует в реестре бин с оновляемыми свойствами.
+     * Регистрирует в реестре бин с обновляемыми свойствами.
      *
      * @param beanName   имя бина.
      * @param bean       бин.
@@ -26,12 +26,12 @@ public interface UpdatableBeanRegistry {
      *
      * @return список свойств.
      */
-    Collection<String> getProperties();
+    Collection<PropertyValue> getProperties();
 
     /**
      * Обновляет заданные свойства.
      *
      * @param listOfValues список обновляемых свойств и их значений.
      */
-    void updateProperties(List<PropertyValue> listOfValues) throws Exception;
+    void updateProperties(Collection<PropertyValue> listOfValues) throws Exception;
 }

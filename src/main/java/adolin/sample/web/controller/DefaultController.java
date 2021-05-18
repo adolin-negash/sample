@@ -4,6 +4,7 @@ import adolin.sample.infra.updatable.PropertyValue;
 import adolin.sample.infra.updatable.UpdatableBeanRegistry;
 import adolin.sample.model.EchoMessage;
 import adolin.sample.service.SampleService;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,5 +43,10 @@ public class DefaultController {
     @PostMapping("/props")
     public void setProperties(@RequestBody List<PropertyValue> values) throws Exception {
         updatableBeanRegistry.updateProperties(values);
+    }
+
+    @GetMapping("/props")
+    public Collection<PropertyValue> getProperties() {
+        return updatableBeanRegistry.getProperties();
     }
 }
