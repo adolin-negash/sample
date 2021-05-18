@@ -6,17 +6,22 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * < ... description>
+ * Информация о сеттере бина.
  *
  * @author Adolin Negash 17.05.2021
+ * @see adolin.sample.infra.annotations.UpdatableBean
  */
 @Slf4j
 @Getter
 public class BeanMethodInfo extends BeanMemberInfo {
 
+    /**
+     * Метод сеттера.
+     */
     private final Method setter;
 
     /**
+     *
      * @param bean
      * @param beanName
      * @param setter

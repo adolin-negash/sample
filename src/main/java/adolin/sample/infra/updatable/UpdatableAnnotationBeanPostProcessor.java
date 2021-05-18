@@ -15,7 +15,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.Ordered;
 
 /**
- * Обработчик бинов, который позволяет регистрировать бины
+ * Обработчик бинов, который позволяет регистрировать бины с обновляемыми свойствами.
  *
  * @author Adolin Negash 17.05.2021
  */
@@ -29,6 +29,14 @@ public class UpdatableAnnotationBeanPostProcessor implements BeanPostProcessor, 
     @Autowired
     private UpdatableBeanRegistry registry;
 
+    /**
+     * Обрабатывает бины до того, как они будут обернуты в proxy-сервера.
+     *
+     * @param bean     бин.
+     * @param beanName имя бина.
+     * @return исходный бин.
+     * @throws BeansException ошибка при обработке.
+     */
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 
@@ -45,6 +53,14 @@ public class UpdatableAnnotationBeanPostProcessor implements BeanPostProcessor, 
         return bean;
     }
 
+    /**
+     * Обрабатывает бины после того, как они обернуты в прокси.
+     *
+     * @param proxyBean бин.
+     * @param beanName  имя бина.
+     * @return исходный бин.
+     * @throws BeansException ошибка при обработке.
+     */
     @Override
     public Object postProcessAfterInitialization(Object proxyBean, String beanName) throws BeansException {
 
@@ -56,11 +72,18 @@ public class UpdatableAnnotationBeanPostProcessor implements BeanPostProcessor, 
         return proxyBean;
     }
 
+    /**
+     * Порядок выполнения BeanPostProcessor-а.
+     */
     @Override
     public int getOrder() {
         return LOWEST_PRECEDENCE;
     }
 
+    /**
+     * Сеттер фабрики бинов.
+     * @param beanFactory фабрика бинов.
+     */
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         if (!(beanFactory instanceof ConfigurableListableBeanFactory)) {

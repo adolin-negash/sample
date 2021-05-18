@@ -5,7 +5,7 @@ import adolin.sample.service.SampleService;
 import adolin.sample.service.SampleServiceImpl;
 
 /**
- * Common bean configuration.
+ * Общая конфигурация бинов.
  *
  * @author Adolin Negash 12.05.2021
  */

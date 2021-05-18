@@ -40,11 +40,20 @@ public class DefaultController {
         return sampleService.echo(text);
     }
 
+    /**
+     *
+     * @param values
+     * @throws Exception
+     */
     @PostMapping("/props")
     public void setProperties(@RequestBody List<PropertyValue> values) throws Exception {
         updatableBeanRegistry.updateProperties(values);
     }
 
+    /**
+     *
+     * @return
+     */
     @GetMapping("/props")
     public Collection<PropertyValue> getProperties() {
         return updatableBeanRegistry.getProperties();

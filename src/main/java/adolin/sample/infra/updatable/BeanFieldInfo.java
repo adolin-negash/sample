@@ -7,6 +7,8 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
  * Информация о поле бина.
+ *
+ * @author Adolin Negash 13.05.2021
  */
 @Slf4j
 @Getter
@@ -18,10 +20,11 @@ class BeanFieldInfo extends BeanMemberInfo {
     private final Field field;
 
     /**
+     * Создает объект с информацией о поле бина.
      *
-     * @param bean
-     * @param beanName
-     * @param field
+     * @param bean     бин.
+     * @param beanName название бина.
+     * @param field    поле.
      */
     BeanFieldInfo(Object bean, String beanName, Field field) {
         super(bean, beanName);
@@ -29,8 +32,9 @@ class BeanFieldInfo extends BeanMemberInfo {
     }
 
     /**
+     * Изменяет поле бина.
      *
-     * @param value значение.
+     * @param value новое значение.
      */
     @Override
     protected void setValue(String value) {
