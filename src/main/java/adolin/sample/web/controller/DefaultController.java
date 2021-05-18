@@ -30,10 +30,10 @@ public class DefaultController {
     private UpdatableBeanRegistry updatableBeanRegistry;
 
     /**
-     * Echo.
+     * Echo-сервис.
      *
-     * @param text text.
-     * @return result echo text.
+     * @param text текст.
+     * @return result echo-объект.
      */
     @GetMapping("/echo")
     public EchoMessage echo(@RequestParam("text") String text) {
@@ -41,9 +41,10 @@ public class DefaultController {
     }
 
     /**
+     * Изменияет свойства в бинах.
      *
-     * @param values
-     * @throws Exception
+     * @param values список пар свойство-значение
+     * @throws Exception ошибка при изменении свойств.
      */
     @PostMapping("/props")
     public void setProperties(@RequestBody List<PropertyValue> values) throws Exception {
@@ -51,8 +52,9 @@ public class DefaultController {
     }
 
     /**
+     * Возвращает список свойств.
      *
-     * @return
+     * @return список свойств.
      */
     @GetMapping("/props")
     public Collection<PropertyValue> getProperties() {

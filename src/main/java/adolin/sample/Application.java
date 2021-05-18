@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 /**
- * Entry point.
+ * Точка входа в приложение.
  *
  * @author Adolin Negash 12.05.2021
  */
@@ -26,7 +26,7 @@ public class Application {
     private ApplicationContext applicationContext;
 
     /**
-     * Entry point method.
+     * Точка входа в приложение.
      *
      * @param args command line args.
      */

@@ -10,7 +10,7 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * < ... description>
+ * Утилитный класс, вытаскивающий метаданные, необходимые для системы обновляемых полей.
  *
  * @author Adolin Negash 17.05.2021
  */
@@ -20,10 +20,12 @@ class UpdatableBeanMemberInfoExtractorUtil {
     }
 
     /**
-     * @param beanClass
-     * @return
+     * Вытаскивает обновляемые поля.
+     *
+     * @param beanClass класс бина.
+     * @return поток ({@link Stream}) пар поле-аннотация.
      */
-    static Stream<Pair<Field, UpdatableValue>> extractUpdatableFields(Class<?> beanClass) {
+    public static Stream<Pair<Field, UpdatableValue>> extractUpdatableFields(Class<?> beanClass) {
         return FieldUtils.getAllFieldsList(beanClass).stream()
             .filter(UpdatableBeanMemberInfoExtractorUtil::isFieldValid)
             .map(field -> Pair.of(field, field.getAnnotation(UpdatableValue.class)))
@@ -31,10 +33,12 @@ class UpdatableBeanMemberInfoExtractorUtil {
     }
 
     /**
-     * @param beanClass
-     * @return
+     * Вытаскивает обновляемые сеттеры.
+     *
+     * @param beanClass класс бина.
+     * @return поток ({@link Stream}) пар метод-аннотация.
      */
-    static Stream<Pair<Method, UpdatableValue>> extractUpdatableSetters(Class<?> beanClass) {
+    public static Stream<Pair<Method, UpdatableValue>> extractUpdatableSetters(Class<?> beanClass) {
         return MethodUtils.getMethodsListWithAnnotation(beanClass, UpdatableValue.class, true, true)
             .stream()
             .filter(UpdatableBeanMemberInfoExtractorUtil::isValidSetter)

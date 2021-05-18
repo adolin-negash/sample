@@ -21,16 +21,22 @@ public class BeanMethodInfo extends BeanMemberInfo {
     private final Method setter;
 
     /**
+     * Создает объект с информацией о методах-сеттерах бина, используемых для обновляемых полей.
      *
-     * @param bean
-     * @param beanName
-     * @param setter
+     * @param bean     бин
+     * @param beanName имя бина.
+     * @param setter   метод-сеттер.
      */
     BeanMethodInfo(Object bean, String beanName, Method setter) {
         super(bean, beanName);
         this.setter = setter;
     }
 
+    /**
+     * Передает новое значение в сеттер.
+     *
+     * @param value новое значение.
+     */
     @Override
     protected void setValue(String value) {
         try {

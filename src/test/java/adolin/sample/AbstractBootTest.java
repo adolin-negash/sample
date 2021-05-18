@@ -4,12 +4,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Profile;
 
 /**
- * < ... description>
+ * Базовый класс для тестов, использующих spring-конфигурацию
  *
  * @author Adolin Negash 12.05.2021
  */
 @Profile("test")
 @SpringBootTest
-public class AbstractBootTest {
+public abstract class AbstractBootTest {
 
 }
