@@ -15,12 +15,17 @@ import lombok.experimental.Accessors;
 public class EchoMessage {
 
     /**
+     * Дополнительное поле
+     */
+    private String info;
+
+    /**
+     * Дополнительное поле
+     */
+    private String info2;
+
+    /**
      * Echo message.
      */
     private String message;
-
-    /**
-     *
-     */
-    private String info;
 }

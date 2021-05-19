@@ -11,5 +11,4 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @Profile("dev")
 public class DevConfig extends CommonConfig {
-
 }

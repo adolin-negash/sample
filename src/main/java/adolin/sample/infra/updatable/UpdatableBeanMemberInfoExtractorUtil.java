@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 
+import static org.apache.commons.lang3.StringUtils.isNoneBlank;
 import static org.apache.commons.lang3.reflect.FieldUtils.getAllFieldsList;
 import static org.apache.commons.lang3.reflect.MethodUtils.getMethodsListWithAnnotation;
 
@@ -15,7 +16,7 @@ import static org.apache.commons.lang3.reflect.MethodUtils.getMethodsListWithAnn
  *
  * @author Adolin Negash 17.05.2021
  */
-class UpdatableBeanMemberInfoExtractorUtil {
+final class UpdatableBeanMemberInfoExtractorUtil {
 
     private UpdatableBeanMemberInfoExtractorUtil() {
     }
@@ -30,7 +31,10 @@ class UpdatableBeanMemberInfoExtractorUtil {
         return getAllFieldsList(beanClass).stream()
             .filter(UpdatableBeanMemberInfoExtractorUtil::isFieldValid)
             .map(field -> Pair.of(field, field.getAnnotation(UpdatableValue.class)))
-            .filter(pair -> pair.getRight() != null);
+            .filter(pair -> {
+                final UpdatableValue annotation = pair.getRight();
+                return annotation != null && isNoneBlank(annotation.value());
+            });
     }
 
     /**
@@ -44,7 +48,10 @@ class UpdatableBeanMemberInfoExtractorUtil {
             .stream()
             .filter(UpdatableBeanMemberInfoExtractorUtil::isValidSetter)
             .map(method -> Pair.of(method, method.getAnnotation(UpdatableValue.class)))
-            .filter(pair -> pair.getRight() != null);
+            .filter(pair -> {
+                final UpdatableValue annotation = pair.getRight();
+                return annotation != null && isNoneBlank(annotation.value());
+            });
     }
 
     private static boolean isFieldValid(Field field) {
@@ -61,7 +68,11 @@ class UpdatableBeanMemberInfoExtractorUtil {
         if (params.length != 1) {
             return false;
         }
+
+        int modifiers = method.getModifiers();
+        if (Modifier.isStatic(modifiers)) {
+            return false;
+        }
         return params[0].isAssignableFrom(String.class);
     }
-
 }

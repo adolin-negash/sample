@@ -2,6 +2,7 @@ package adolin.sample.infra.updatable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,9 +28,11 @@ public class BeanMethodInfo extends BeanMemberInfo {
      * @param beanName имя бина.
      * @param setter   метод-сеттер.
      */
+    @SuppressWarnings("java:S3011")
     BeanMethodInfo(Object bean, String beanName, Method setter) {
         super(bean, beanName);
-        this.setter = setter;
+        this.setter = Objects.requireNonNull(setter);
+        this.setter.setAccessible(true);
     }
 
     /**
@@ -41,7 +44,7 @@ public class BeanMethodInfo extends BeanMemberInfo {
     protected void setValue(String value) {
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Change value of type {}, setter {}", bean.getClass(), setter.getName());
+                log.debug("Change value of type [{}], setter [{}]", bean.getClass(), setter.getName());
             }
 
             setter.invoke(bean, value);
