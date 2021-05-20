@@ -79,27 +79,34 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         requireNonNull(annotation, "empty bean annotation");
 
         final Class<?> beanClass = bean.getClass();
-        final Class<?> proxyClass = proxyBean.getClass();
 
-        Stream<Pair<UpdatableValue, BeanMemberInfo>> fieldMembers = infoExtractor.extractUpdatableFields(beanClass)
+        final Stream<Pair<UpdatableValue, BeanMemberInfo>> fieldMembers = infoExtractor
+            .extractUpdatableFields(beanClass)
             .map(pair -> Pair.of(pair.getRight(), new BeanFieldInfo(bean, beanName, pair.getLeft())));
 
-        Stream<Pair<UpdatableValue, BeanMemberInfo>> methodMembers = infoExtractor.extractUpdatableSetters(beanClass)
+        final Stream<Pair<UpdatableValue, BeanMemberInfo>> methodMembers = infoExtractor
+            .extractUpdatableSetters(beanClass)
             .map(pair -> Pair.of(pair.getRight(),
-                getBeanMemberInfo(beanName, proxyBean, bean, proxyClass, pair.getLeft())));
+                getBeanMemberInfo(beanName, proxyBean, bean, proxyBean.getClass(), pair.getLeft())));
 
-        Stream.concat(fieldMembers, methodMembers)
-            .forEach(pair -> {
-                final String propertyName = pair.getLeft().value();
-                if (StringUtils.isBlank(propertyName)) {
-                    throw new IllegalArgumentException("empty property in UpdatableValue annotation");
-                }
+        final List<Pair<UpdatableValue, BeanMemberInfo>> members = Stream.concat(fieldMembers, methodMembers)
+            .collect(Collectors.toList());
 
-                final PropertyInfo propertyInfo = properties.computeIfAbsent(propertyName, n -> new PropertyInfo());
-                final BeanMemberInfo memberInfo = pair.getRight();
-                propertyInfo.getMembers().add(memberInfo);
-                updateProperty(propertyName, environment.getProperty(propertyName));
-            });
+        if (members.isEmpty()) {
+            return;
+        }
+
+        for (Pair<UpdatableValue, BeanMemberInfo> pair : members) {
+            final String propertyName = pair.getLeft().value();
+            if (StringUtils.isBlank(propertyName)) {
+                throw new IllegalArgumentException("empty property in UpdatableValue annotation");
+            }
+
+            final PropertyInfo propertyInfo = properties.computeIfAbsent(propertyName, n -> new PropertyInfo());
+            final BeanMemberInfo memberInfo = pair.getRight();
+            propertyInfo.getMembers().add(memberInfo);
+            updateProperty(propertyName, environment.getProperty(propertyName));
+        }
         beans.put(beanName, new BeanInfo(bean, null));
     }
 
@@ -123,15 +130,15 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     @Override
     public synchronized void updateProperties(Collection<PropertyValue> listOfValues) throws Exception {
         requireNonNull(listOfValues, "empty list");
-        HashSet<String> beanNames = new HashSet<>();
+        final HashSet<String> beanNames = new HashSet<>();
         for (PropertyValue value : listOfValues) {
-            List<String> changedNames = updateProperty(value.getName(), value.getValue());
+            final List<String> changedNames = updateProperty(value.getName(), value.getValue());
             beanNames.addAll(changedNames);
         }
 
         for (String name : beanNames) {
-            BeanInfo info = beans.get(name);
-            Method updateMethod = info.getAfterUpdateMethod();
+            final BeanInfo info = beans.get(name);
+            final Method updateMethod = info.getAfterUpdateMethod();
             if (updateMethod != null) {
                 updateMethod.invoke(info.getBean());
             }

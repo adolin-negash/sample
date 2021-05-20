@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Adolin Negash 14.05.2021
  */
-@ConditionalOnMissingBean
 @Configuration
 public class InfraConfig {
 
@@ -22,6 +21,7 @@ public class InfraConfig {
      *
      * @return {@link DefaultUpdatableBeanRegistry}
      */
+    @ConditionalOnMissingBean
     @Bean
     public UpdatableBeanRegistry updatableBeanRegistry() {
         return new DefaultUpdatableBeanRegistry();
@@ -32,6 +32,7 @@ public class InfraConfig {
      *
      * @return {@link UpdatableAnnotationBeanPostProcessor}
      */
+    @ConditionalOnMissingBean
     @Bean
     public UpdatableAnnotationBeanPostProcessor updatableAnnotationBeanPostProcessor() {
         return new UpdatableAnnotationBeanPostProcessor();
@@ -42,6 +43,7 @@ public class InfraConfig {
      *
      * @return {@link UpdatableBeanMemberInfoExtractor}
      */
+    @ConditionalOnMissingBean
     @Bean
     public UpdatableBeanMemberInfoExtractor updatableBeanMemberInfoExtractor() {
         return new UpdatableBeanMemberInfoExtractor();

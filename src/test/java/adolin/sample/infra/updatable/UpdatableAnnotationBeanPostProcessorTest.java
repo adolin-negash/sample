@@ -28,6 +28,8 @@ import static org.mockito.Mockito.when;
  */
 class UpdatableAnnotationBeanPostProcessorTest extends AbstractMockTest {
 
+    private static final String BEAN_NAME = "test bean";
+
     @InjectMocks
     private UpdatableAnnotationBeanPostProcessor subj;
 
@@ -75,60 +77,57 @@ class UpdatableAnnotationBeanPostProcessorTest extends AbstractMockTest {
 
     @Test
     void shouldNotAddBeanWithoutAnnotation() {
-        String beanName = "test bean";
-        Object bean = new Object();
+        final Object bean = new Object();
 
-        when(beanFactory.findAnnotationOnBean(eq(beanName), eq(UpdatableBean.class)))
+        when(beanFactory.findAnnotationOnBean(eq(BEAN_NAME), eq(UpdatableBean.class)))
             .thenReturn(null);
 
-        assertSame(bean, subj.postProcessBeforeInitialization(bean, beanName));
-        assertSame(bean, subj.postProcessAfterInitialization(bean, beanName));
+        assertSame(bean, subj.postProcessBeforeInitialization(bean, BEAN_NAME));
+        assertSame(bean, subj.postProcessAfterInitialization(bean, BEAN_NAME));
 
-        verify(beanFactory).findAnnotationOnBean(eq(beanName), eq(UpdatableBean.class));
+        verify(beanFactory).findAnnotationOnBean(eq(BEAN_NAME), eq(UpdatableBean.class));
     }
 
     @Test
     void shouldThrowWhenIncompatibleScope() {
-        String beanName = "test bean";
-        Object bean = new Object();
+        final Object bean = new Object();
 
-        when(beanFactory.findAnnotationOnBean(eq(beanName), eq(UpdatableBean.class)))
+        when(beanFactory.findAnnotationOnBean(eq(BEAN_NAME), eq(UpdatableBean.class)))
             .thenReturn(updatableBeanAnnotation);
-        when(beanFactory.getBeanDefinition(beanName)).thenReturn(beanDefinition);
+        when(beanFactory.getBeanDefinition(BEAN_NAME)).thenReturn(beanDefinition);
         when(beanDefinition.getScope()).thenReturn("new scope");
 
-        assertThrows(IllegalStateException.class, () -> subj.postProcessBeforeInitialization(bean, beanName));
+        assertThrows(IllegalStateException.class, () -> subj.postProcessBeforeInitialization(bean, BEAN_NAME));
 
-        verify(beanFactory).findAnnotationOnBean(eq(beanName), eq(UpdatableBean.class));
-        verify(beanFactory).getBeanDefinition(beanName);
+        verify(beanFactory).findAnnotationOnBean(eq(BEAN_NAME), eq(UpdatableBean.class));
+        verify(beanFactory).getBeanDefinition(BEAN_NAME);
         verify(beanDefinition).getScope();
     }
 
     @Test
     void shouldRegisterBean() {
-        final String beanName = "test bean";
         final Object bean = new Object();
         final Object proxyBean = new Object();
 
-        when(beanFactory.findAnnotationOnBean(eq(beanName), eq(UpdatableBean.class)))
+        when(beanFactory.findAnnotationOnBean(eq(BEAN_NAME), eq(UpdatableBean.class)))
             .thenReturn(updatableBeanAnnotation);
-        when(beanFactory.getBeanDefinition(beanName)).thenReturn(beanDefinition);
+        when(beanFactory.getBeanDefinition(BEAN_NAME)).thenReturn(beanDefinition);
         when(beanDefinition.getScope()).thenReturn("");
 
-        subj.postProcessBeforeInitialization(bean, beanName);
+        subj.postProcessBeforeInitialization(bean, BEAN_NAME);
 
-        verify(beanFactory).findAnnotationOnBean(eq(beanName), eq(UpdatableBean.class));
-        verify(beanFactory).getBeanDefinition(beanName);
+        verify(beanFactory).findAnnotationOnBean(eq(BEAN_NAME), eq(UpdatableBean.class));
+        verify(beanFactory).getBeanDefinition(BEAN_NAME);
         verify(beanDefinition).getScope();
 
-        subj.postProcessAfterInitialization(proxyBean, beanName);
+        subj.postProcessAfterInitialization(proxyBean, BEAN_NAME);
 
         verify(registry).registerBean(beanNameCaptor.capture(),
             beanCaptor.capture(),
             proxyBeanCaptor.capture(),
             beanAnnotationCaptor.capture());
 
-        assertEquals(beanName, beanNameCaptor.getValue());
+        assertEquals(BEAN_NAME, beanNameCaptor.getValue());
         assertSame(bean, beanCaptor.getValue());
         assertSame(proxyBean, proxyBeanCaptor.getValue());
         assertSame(updatableBeanAnnotation, beanAnnotationCaptor.getValue());

@@ -9,11 +9,14 @@
   <version>1.0.1-SNAPSHOT</version>
 
   <properties>
+    <encoding>UTF-8</encoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
 
     <org.springframework.boot.version>2.4.5</org.springframework.boot.version>
+
     <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+    <maven-resource-plugin.version>2.6</maven-resource-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -76,6 +79,16 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>${maven-resource-plugin.version}</version>
+        <configuration>
+          <encoding>${encoding}</encoding>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -83,6 +96,7 @@
         <configuration>
           <source>11</source>
           <target>11</target>
+          <encoding>${encoding}</encoding>
         </configuration>
       </plugin>
     </plugins>

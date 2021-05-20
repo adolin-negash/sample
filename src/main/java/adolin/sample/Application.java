@@ -31,8 +31,7 @@ public class Application {
      * @param args command line args.
      */
     public static void main(String[] args) {
-        SpringApplication application = new SpringApplication(Application.class);
-        application.run(args);
+        SpringApplication.run(Application.class, args);
     }
 
     /**
