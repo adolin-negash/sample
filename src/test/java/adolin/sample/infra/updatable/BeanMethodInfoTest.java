@@ -5,6 +5,7 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * Класс для тестирования {@link BeanMethodInfo}
@@ -21,16 +22,50 @@ class BeanMethodInfoTest {
         private void setter(String data) {
             this.data = data;
         }
+
+        private void setterWithException(String data) {
+            throw new RuntimeException("some error");
+        }
+    }
+
+    private static final Method SETTER = getMethod("setter");
+
+    private static final Method SETTER_WITH_EXCEPTION = getMethod("setterWithException");
+
+    private static final String SOME_DATA = "some data";
+
+    static Method getMethod(String name) {
+        return MethodUtils.getMatchingMethod(TestClass.class, name, String.class);
+    }
+
+    @Test
+    void shouldGetBeanInfo() {
+        final TestClass bean = new TestClass();
+        final BeanMethodInfo info = new BeanMethodInfo(bean, "bean", SETTER);
+        assertEquals("bean", info.getBeanName());
+        assertSame(bean, info.getBean());
     }
 
     @Test
     void shouldSetValue() {
-        Method setter = MethodUtils.getMatchingMethod(TestClass.class, "setter", String.class);
-        final TestClass testClass = new TestClass();
-        final BeanMethodInfo info = new BeanMethodInfo(testClass, "bean", setter);
+        final TestClass bean = new TestClass();
+        final BeanMethodInfo info = new BeanMethodInfo(bean, "bean", SETTER);
 
-        final String someData = "some data";
-        info.setValue(someData);
-        assertEquals(someData, testClass.data);
+        info.setValue(SOME_DATA);
+        assertEquals(SOME_DATA, bean.data);
+    }
+
+    @Test
+    void shouldThrowOnThrowSetter() {
+
+        final String oldData = "old data";
+
+        final TestClass bean = new TestClass();
+
+        final BeanMethodInfo info = new BeanMethodInfo(bean, "bean", SETTER_WITH_EXCEPTION);
+
+        bean.data = oldData;
+        info.setValue(SOME_DATA);
+        assertEquals(oldData, bean.data);
     }
 }

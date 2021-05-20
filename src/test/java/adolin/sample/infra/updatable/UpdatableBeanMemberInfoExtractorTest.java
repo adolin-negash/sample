@@ -11,19 +11,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
-import static adolin.sample.infra.updatable.UpdatableBeanMemberInfoExtractorUtil.extractUpdatableFields;
-import static adolin.sample.infra.updatable.UpdatableBeanMemberInfoExtractorUtil.extractUpdatableSetters;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Тестовый клас для {@link UpdatableBeanMemberInfoExtractorUtil}
+ * Тестовый клас для {@link UpdatableBeanMemberInfoExtractor}
  *
  * @author Adolin Negash 18.05.2021
  */
-class UpdatableBeanMemberInfoExtractorUtilTest extends AbstractMockTest {
+class UpdatableBeanMemberInfoExtractorTest extends AbstractMockTest {
 
     @SuppressWarnings("unused")
     private static class FieldTester {
@@ -96,10 +94,12 @@ class UpdatableBeanMemberInfoExtractorUtilTest extends AbstractMockTest {
         }
     }
 
+    private final UpdatableBeanMemberInfoExtractor infoExtractor = new UpdatableBeanMemberInfoExtractor();
+
     @Test
     void shouldExtractFieldsFromClass() {
 
-        Stream<Pair<Field, UpdatableValue>> pairs = extractUpdatableFields(FieldTester.class);
+        Stream<Pair<Field, UpdatableValue>> pairs = infoExtractor.extractUpdatableFields(FieldTester.class);
 
         assertNotNull(pairs);
 
@@ -117,7 +117,7 @@ class UpdatableBeanMemberInfoExtractorUtilTest extends AbstractMockTest {
 
     @Test
     void shouldExtractSettersFromClass() {
-        Stream<Pair<Method, UpdatableValue>> pairs = extractUpdatableSetters(SettersTester.class);
+        Stream<Pair<Method, UpdatableValue>> pairs = infoExtractor.extractUpdatableSetters(SettersTester.class);
 
         assertNotNull(pairs);
 

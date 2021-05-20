@@ -18,8 +18,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
-import static adolin.sample.infra.updatable.UpdatableBeanMemberInfoExtractorUtil.extractUpdatableFields;
-import static adolin.sample.infra.updatable.UpdatableBeanMemberInfoExtractorUtil.extractUpdatableSetters;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.reflect.MethodUtils.getAccessibleMethod;
 
@@ -62,6 +60,9 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private UpdatableBeanMemberInfoExtractor infoExtractor;
+
     /**
      * Регистрирует в реестре бин с обновляемыми свойствами.
      *
@@ -80,10 +81,10 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         final Class<?> beanClass = bean.getClass();
         final Class<?> proxyClass = proxyBean.getClass();
 
-        Stream<Pair<UpdatableValue, BeanMemberInfo>> fieldMembers = extractUpdatableFields(beanClass)
+        Stream<Pair<UpdatableValue, BeanMemberInfo>> fieldMembers = infoExtractor.extractUpdatableFields(beanClass)
             .map(pair -> Pair.of(pair.getRight(), new BeanFieldInfo(bean, beanName, pair.getLeft())));
 
-        Stream<Pair<UpdatableValue, BeanMemberInfo>> methodMembers = extractUpdatableSetters(beanClass)
+        Stream<Pair<UpdatableValue, BeanMemberInfo>> methodMembers = infoExtractor.extractUpdatableSetters(beanClass)
             .map(pair -> Pair.of(pair.getRight(),
                 getBeanMemberInfo(beanName, proxyBean, bean, proxyClass, pair.getLeft())));
 

@@ -1,7 +1,6 @@
 package adolin.sample.infra.updatable;
 
 import java.lang.reflect.Field;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -11,7 +10,6 @@ import org.apache.commons.lang3.reflect.FieldUtils;
  * @author Adolin Negash 13.05.2021
  */
 @Slf4j
-@Getter
 class BeanFieldInfo extends BeanMemberInfo {
 
     /**

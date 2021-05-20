@@ -3,7 +3,6 @@ package adolin.sample.infra.updatable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
  * @see adolin.sample.infra.annotations.UpdatableBean
  */
 @Slf4j
-@Getter
 public class BeanMethodInfo extends BeanMemberInfo {
 
     /**

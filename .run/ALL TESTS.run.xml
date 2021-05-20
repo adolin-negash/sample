@@ -1,6 +1,12 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="ALL TESTS" type="JUnit" factoryName="JUnit">
     <module name="sample"/>
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="adolin.sample.*"/>
+        <option name="ENABLED" value="true"/>
+      </pattern>
+    </extension>
     <option name="PACKAGE_NAME" value="adolin.sample"/>
     <option name="MAIN_CLASS_NAME" value=""/>
     <option name="METHOD_NAME" value=""/>

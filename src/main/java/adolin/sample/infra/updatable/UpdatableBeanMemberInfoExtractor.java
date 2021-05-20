@@ -16,10 +16,7 @@ import static org.apache.commons.lang3.reflect.MethodUtils.getMethodsListWithAnn
  *
  * @author Adolin Negash 17.05.2021
  */
-final class UpdatableBeanMemberInfoExtractorUtil {
-
-    private UpdatableBeanMemberInfoExtractorUtil() {
-    }
+public class UpdatableBeanMemberInfoExtractor {
 
     /**
      * Вытаскивает обновляемые поля.
@@ -27,9 +24,9 @@ final class UpdatableBeanMemberInfoExtractorUtil {
      * @param beanClass класс бина.
      * @return поток ({@link Stream}) пар поле-аннотация.
      */
-    public static Stream<Pair<Field, UpdatableValue>> extractUpdatableFields(Class<?> beanClass) {
+    public Stream<Pair<Field, UpdatableValue>> extractUpdatableFields(Class<?> beanClass) {
         return getAllFieldsList(beanClass).stream()
-            .filter(UpdatableBeanMemberInfoExtractorUtil::isFieldValid)
+            .filter(UpdatableBeanMemberInfoExtractor::isFieldValid)
             .map(field -> Pair.of(field, field.getAnnotation(UpdatableValue.class)))
             .filter(pair -> {
                 final UpdatableValue annotation = pair.getRight();
@@ -43,10 +40,10 @@ final class UpdatableBeanMemberInfoExtractorUtil {
      * @param beanClass класс бина.
      * @return поток ({@link Stream}) пар метод-аннотация.
      */
-    public static Stream<Pair<Method, UpdatableValue>> extractUpdatableSetters(Class<?> beanClass) {
+    public Stream<Pair<Method, UpdatableValue>> extractUpdatableSetters(Class<?> beanClass) {
         return getMethodsListWithAnnotation(beanClass, UpdatableValue.class, true, true)
             .stream()
-            .filter(UpdatableBeanMemberInfoExtractorUtil::isValidSetter)
+            .filter(UpdatableBeanMemberInfoExtractor::isValidSetter)
             .map(method -> Pair.of(method, method.getAnnotation(UpdatableValue.class)))
             .filter(pair -> {
                 final UpdatableValue annotation = pair.getRight();
