@@ -1,9 +1,18 @@
 logging:
   level:
     org:
-      springframework: trace
+      springframework: info
 
 adolin:
   sample:
     service:
       some-info: "init value"
+
+---
+spring:
+  profiles: test
+
+logging:
+  level:
+    org:
+      springframework: trace

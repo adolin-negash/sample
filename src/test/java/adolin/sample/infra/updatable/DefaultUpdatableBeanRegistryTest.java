@@ -24,6 +24,6 @@ class DefaultUpdatableBeanRegistryTest extends AbstractMockTest {
 
     @Test
     void shouldRegisterBean() {
-
+        // subj.registerBean();
     }
 }

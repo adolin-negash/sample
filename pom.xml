@@ -17,6 +17,7 @@
 
     <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
     <maven-resource-plugin.version>2.6</maven-resource-plugin.version>
+    <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -82,6 +83,17 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <source>11</source>
+          <target>11</target>
+          <encoding>${encoding}</encoding>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <version>${maven-resource-plugin.version}</version>
         <configuration>
@@ -91,14 +103,15 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
         <configuration>
-          <source>11</source>
-          <target>11</target>
-          <encoding>${encoding}</encoding>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
         </configuration>
       </plugin>
+
     </plugins>
   </build>
 
