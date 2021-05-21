@@ -106,6 +106,7 @@ class DefaultControllerTest extends AbstractRestTest {
     @Test
     void shouldSetProperties() throws Exception {
         final List<PropertyValue> input = getStubPropertyValues();
+
         mockMvc.perform(post("/api/props")
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsBytes(input)))

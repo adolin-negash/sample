@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,16 +34,12 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     private static final Class<?>[] SETTER_SIGNATURE = {String.class};
 
     @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class BeanInfo {
 
         private final Object bean;
 
         private final Method afterUpdateMethod;
-
-        BeanInfo(Object bean, Method afterUpdateMethod) {
-            this.bean = bean;
-            this.afterUpdateMethod = afterUpdateMethod;
-        }
     }
 
     @Getter
@@ -51,6 +49,10 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         private String value;
 
         private final List<BeanMemberInfo> members = new ArrayList<>();
+
+        public PropertyInfo(String value) {
+            this.value = value;
+        }
     }
 
     private final ConcurrentHashMap<String, PropertyInfo> properties = new ConcurrentHashMap<>();
@@ -102,10 +104,11 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
                 throw new IllegalArgumentException("empty property in UpdatableValue annotation");
             }
 
-            final PropertyInfo propertyInfo = properties.computeIfAbsent(propertyName, n -> new PropertyInfo());
-            final BeanMemberInfo memberInfo = pair.getRight();
-            propertyInfo.getMembers().add(memberInfo);
-            updateProperty(propertyName, environment.getProperty(propertyName));
+            final PropertyInfo propertyInfo = properties.computeIfAbsent(propertyName,
+                name -> new PropertyInfo(environment.getProperty(name)));
+
+            propertyInfo.getMembers().add(pair.getRight());
+            updateProperty(propertyName, propertyInfo.getValue());
         }
         beans.put(beanName, new BeanInfo(bean, null));
     }
@@ -160,10 +163,14 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     }
 
     private List<String> updateProperty(String propertyName, String value) {
-        final PropertyInfo info = properties.get(propertyName);
         final List<String> beanNames = new ArrayList<>();
+
+        final PropertyInfo info = properties.get(propertyName);
         if (info == null) {
-            log.warn("Cannot update property {}, no beans use this property.", propertyName);
+            log.warn("Cannot update property {}, no bean use this property.", propertyName);
+
+            properties.put(propertyName, new PropertyInfo(value));
+
             return beanNames;
         }
 
