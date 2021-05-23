@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Аннотация помечает поля или сеттеры, значения которых могут берутся из свойств и могут обновляться.
+ * Аннотация помечает поля или сеттеры, значения которых берутся из свойств и могут обновляться.
  *
  * @author Adolin Negash 13.05.2021
  * @see UpdatableBean

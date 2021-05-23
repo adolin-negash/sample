@@ -1,5 +1,8 @@
 package adolin.sample.infra.updatable;
 
+import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.reflect.MethodUtils.getAccessibleMethod;
+
 import adolin.sample.infra.annotations.UpdatableBean;
 import adolin.sample.infra.annotations.UpdatableValue;
 import java.lang.reflect.Method;
@@ -13,15 +16,11 @@ import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-
-import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang3.reflect.MethodUtils.getAccessibleMethod;
 
 /**
  * Реестр обновляемых свойств. Хранит свойства и обновляет их в привязанных бинах.
@@ -40,19 +39,6 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         private final Object bean;
 
         private final Method afterUpdateMethod;
-    }
-
-    @Getter
-    private static class PropertyInfo {
-
-        @Setter
-        private String value;
-
-        private final List<BeanMemberInfo> members = new ArrayList<>();
-
-        public PropertyInfo(String value) {
-            this.value = value;
-        }
     }
 
     private final ConcurrentHashMap<String, PropertyInfo> properties = new ConcurrentHashMap<>();
@@ -74,7 +60,11 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
      * @param annotation аннотация.
      */
     @Override
-    public synchronized void registerBean(String beanName, Object bean, Object proxyBean, UpdatableBean annotation) {
+    public synchronized void registerBean(String beanName,
+        Object bean,
+        Object proxyBean,
+        UpdatableBean annotation) {
+
         requireNonNull(beanName, "empty beanName");
         requireNonNull(bean, "empty bean");
         requireNonNull(proxyBean, "empty proxyBean");
@@ -88,8 +78,7 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
 
         final Stream<Pair<UpdatableValue, BeanMemberInfo>> methodMembers = infoExtractor
             .extractUpdatableSetters(beanClass)
-            .map(pair -> Pair.of(pair.getRight(),
-                getBeanMemberInfo(beanName, proxyBean, bean, proxyBean.getClass(), pair.getLeft())));
+            .map(pair -> Pair.of(pair.getRight(), getBeanMemberInfo(beanName, proxyBean, bean, proxyBean.getClass(), pair.getLeft())));
 
         final List<Pair<UpdatableValue, BeanMemberInfo>> members = Stream.concat(fieldMembers, methodMembers)
             .collect(Collectors.toList());
@@ -107,7 +96,7 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
             final PropertyInfo propertyInfo = properties.computeIfAbsent(propertyName,
                 name -> new PropertyInfo(environment.getProperty(name)));
 
-            propertyInfo.getMembers().add(pair.getRight());
+            propertyInfo.addMember(pair.getRight());
             updateProperty(propertyName, propertyInfo.getValue());
         }
         beans.put(beanName, new BeanInfo(bean, null));
@@ -132,6 +121,7 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
      */
     @Override
     public synchronized void updateProperties(Collection<PropertyValue> listOfValues) throws Exception {
+
         requireNonNull(listOfValues, "empty list");
         final HashSet<String> beanNames = new HashSet<>();
         for (PropertyValue value : listOfValues) {
@@ -165,19 +155,13 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     private List<String> updateProperty(String propertyName, String value) {
         final List<String> beanNames = new ArrayList<>();
 
-        final PropertyInfo info = properties.get(propertyName);
-        if (info == null) {
-            log.warn("Cannot update property {}, no bean use this property.", propertyName);
+        final PropertyInfo info = properties.computeIfAbsent(propertyName, name -> new PropertyInfo(value));
 
-            properties.put(propertyName, new PropertyInfo(value));
-
+        if (info.isEmpty()) {
+            log.warn("No bean use property \"{}\".", propertyName);
             return beanNames;
         }
 
-        for (BeanMemberInfo beanInfo : info.getMembers()) {
-            beanInfo.setValue(value);
-            beanNames.add(beanInfo.getBeanName());
-        }
         info.setValue(value);
         return beanNames;
     }
