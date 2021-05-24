@@ -1,7 +1,7 @@
 package adolin.sample.service;
 
-import adolin.sample.infra.annotations.UpdatableValue;
 import adolin.sample.model.EchoMessage;
+import adolin.starter.annotations.UpdatableValue;
 import lombok.extern.slf4j.Slf4j;
 
 /**

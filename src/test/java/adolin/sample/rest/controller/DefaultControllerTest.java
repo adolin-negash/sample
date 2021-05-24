@@ -1,10 +1,10 @@
 package adolin.sample.rest.controller;
 
 import adolin.sample.AbstractRestTest;
-import adolin.sample.infra.updatable.PropertyValue;
-import adolin.sample.infra.updatable.UpdatableBeanRegistry;
 import adolin.sample.model.EchoMessage;
 import adolin.sample.service.SampleService;
+import adolin.starter.updatable.PropertyValue;
+import adolin.starter.updatable.UpdatableBeanRegistry;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import java.util.Arrays;
 import java.util.List;
