@@ -2,6 +2,7 @@ package adolin.sample.infra.updatable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 
 /**
@@ -46,11 +47,23 @@ class PropertyInfo {
      * @param value значение свойства.
      */
     void setValue(String value) {
+
         this.value = value;
 
+        final List<String> beans = new ArrayList<>();
         for (BeanMemberInfo member : members) {
             member.setValue(value);
+            beans.add(member.getBeanName());
         }
+    }
+
+    /**
+     * Возвращает список имен бинов, к которым привязано свойство.
+     */
+    List<String> getBeanNames() {
+        return members.stream()
+            .map(BeanMemberInfo::getBeanName)
+            .collect(Collectors.toList());
     }
 
     /**

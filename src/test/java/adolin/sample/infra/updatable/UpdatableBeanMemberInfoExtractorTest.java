@@ -10,11 +10,14 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Тестовый клас для {@link UpdatableBeanMemberInfoExtractor}
@@ -94,6 +97,19 @@ class UpdatableBeanMemberInfoExtractorTest extends AbstractMockTest {
         }
     }
 
+    @SuppressWarnings("unused")
+    private static class OnUpdateMethodsTester {
+
+        private void simpleMethod() {
+        }
+
+        private static void simpleStaticMethod() {
+        }
+
+        private void methodWithParam(int i) {
+        }
+    }
+
     private final UpdatableBeanMemberInfoExtractor infoExtractor = new UpdatableBeanMemberInfoExtractor();
 
     @Test
@@ -131,5 +147,21 @@ class UpdatableBeanMemberInfoExtractorTest extends AbstractMockTest {
         expected.sort(StringUtils::compare);
 
         assertIterableEquals(expected, list);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"simpleMethod"})
+    void shouldExtractOnUpdateMethod(String methodName) {
+        assertNotNull(getOnUpdateMethod(methodName));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"simpleStaticMethod", "methodWithParam"})
+    void shouldNotFindOnUpdateMethod(String methodName) {
+        assertNull(getOnUpdateMethod(methodName));
+    }
+
+    private Method getOnUpdateMethod(String methodName) {
+        return infoExtractor.extractOnUpdateMethod(OnUpdateMethodsTester.class, methodName);
     }
 }

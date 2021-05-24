@@ -1,15 +1,13 @@
 package adolin.sample.infra.updatable;
 
-import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang3.reflect.MethodUtils.getAccessibleMethod;
-
 import adolin.sample.infra.annotations.UpdatableBean;
 import adolin.sample.infra.annotations.UpdatableValue;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,6 +19,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.reflect.MethodUtils.getAccessibleMethod;
 
 /**
  * Реестр обновляемых свойств. Хранит свойства и обновляет их в привязанных бинах.
@@ -39,6 +41,12 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         private final Object bean;
 
         private final Method afterUpdateMethod;
+
+        private void callAfterUpdate() throws InvocationTargetException, IllegalAccessException {
+            if (afterUpdateMethod != null) {
+                afterUpdateMethod.invoke(bean);
+            }
+        }
     }
 
     private final ConcurrentHashMap<String, PropertyInfo> properties = new ConcurrentHashMap<>();
@@ -71,6 +79,7 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
         requireNonNull(annotation, "empty bean annotation");
 
         final Class<?> beanClass = bean.getClass();
+        final Class<?> proxyBeanClass = proxyBean.getClass();
 
         final Stream<Pair<UpdatableValue, BeanMemberInfo>> fieldMembers = infoExtractor
             .extractUpdatableFields(beanClass)
@@ -78,7 +87,8 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
 
         final Stream<Pair<UpdatableValue, BeanMemberInfo>> methodMembers = infoExtractor
             .extractUpdatableSetters(beanClass)
-            .map(pair -> Pair.of(pair.getRight(), getBeanMemberInfo(beanName, proxyBean, bean, proxyBean.getClass(), pair.getLeft())));
+            .map(pair -> Pair.of(pair.getRight(),
+                getBeanMemberInfo(beanName, proxyBean, bean, proxyBeanClass, pair.getLeft())));
 
         final List<Pair<UpdatableValue, BeanMemberInfo>> members = Stream.concat(fieldMembers, methodMembers)
             .collect(Collectors.toList());
@@ -99,7 +109,14 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
             propertyInfo.addMember(pair.getRight());
             updateProperty(propertyName, propertyInfo.getValue());
         }
-        beans.put(beanName, new BeanInfo(bean, null));
+
+        String onUpdateMethodName = annotation.onUpdateMethod();
+        Method onUpdateMethod = infoExtractor.extractOnUpdateMethod(proxyBeanClass, onUpdateMethodName);
+        if (onUpdateMethod == null) {
+            onUpdateMethod = infoExtractor.extractOnUpdateMethod(beanClass, onUpdateMethodName);
+        }
+
+        beans.put(beanName, new BeanInfo(bean, onUpdateMethod));
     }
 
     /**
@@ -123,18 +140,14 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     public synchronized void updateProperties(Collection<PropertyValue> listOfValues) throws Exception {
 
         requireNonNull(listOfValues, "empty list");
-        final HashSet<String> beanNames = new HashSet<>();
+        final Set<String> beanNames = new HashSet<>();
         for (PropertyValue value : listOfValues) {
             final List<String> changedNames = updateProperty(value.getName(), value.getValue());
             beanNames.addAll(changedNames);
         }
 
         for (String name : beanNames) {
-            final BeanInfo info = beans.get(name);
-            final Method updateMethod = info.getAfterUpdateMethod();
-            if (updateMethod != null) {
-                updateMethod.invoke(info.getBean());
-            }
+            beans.get(name).callAfterUpdate();
         }
     }
 
@@ -153,16 +166,13 @@ public class DefaultUpdatableBeanRegistry implements UpdatableBeanRegistry {
     }
 
     private List<String> updateProperty(String propertyName, String value) {
-        final List<String> beanNames = new ArrayList<>();
-
         final PropertyInfo info = properties.computeIfAbsent(propertyName, name -> new PropertyInfo(value));
-
         if (info.isEmpty()) {
             log.warn("No bean use property \"{}\".", propertyName);
-            return beanNames;
+            return emptyList();
+        } else {
+            info.setValue(value);
+            return info.getBeanNames();
         }
-
-        info.setValue(value);
-        return beanNames;
     }
 }
