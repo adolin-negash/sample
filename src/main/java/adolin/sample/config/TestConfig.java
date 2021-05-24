@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 /**
- * Test configuration.
+ * Настройки бинов, используемые в режиме тестов.
  *
  * @author Adolin Negash 13.05.2021
  */

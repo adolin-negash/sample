@@ -1,9 +1,18 @@
----
-spring:
-  profiles:
-    active: dev
+logging:
+  level:
+    org:
+      springframework: info
 
 adolin:
   sample:
     service:
-      some-info: "XXXXX"
+      some-info: "init value"
+
+---
+spring:
+  profiles: test
+
+logging:
+  level:
+    org:
+      springframework: trace
