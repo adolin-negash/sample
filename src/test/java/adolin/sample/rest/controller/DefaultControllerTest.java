@@ -74,8 +74,8 @@ class DefaultControllerTest extends AbstractRestTest {
 
         verify(sampleService).echo(eq(paramValue));
 
-        final EchoMessage message = objectMapper.readValue(result.getResponse().getContentAsString(),
-            EchoMessage.class);
+        final EchoMessage message = objectMapper
+            .readValue(result.getResponse().getContentAsString(), EchoMessage.class);
 
         assertEquals("message", message.getMessage());
         assertEquals("info", message.getInfo());
